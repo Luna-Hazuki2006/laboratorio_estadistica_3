@@ -91,6 +91,7 @@ for x in coeficientes_ecuaciones['legenda']:
     coeficientes_ecuaciones[f"∑{x['variable']}"] = sum(coeficientes_ecuaciones['tabla'][x['variable']])
     if x['variable'] == 'y': continue
     coeficientes_ecuaciones['tabla'][f"{x['variable']}^2"] = list(filter(lambda y: y['nombre'] == x['nombre'], info['variables']))[0]['lista^2']
+    coeficientes_ecuaciones[f"∑{x['variable']}^2"] = sum(coeficientes_ecuaciones['tabla'][f"{x['variable']}^2"])
 
 for i in range(len(coeficientes_ecuaciones['legenda'])): 
     for j in range(i + 1, len(coeficientes_ecuaciones['legenda'])):
@@ -111,6 +112,26 @@ x_solas_arreglados = [f'∑x{y}' for y in sorted([int(x[2:]) for x in x_solas])]
 x_solas_arreglados.insert(0, '∑y')
 
 matriz = []
-lista = []
+
+lista = [info['nt'] if x == '∑y' else coeficientes_ecuaciones[x] for x in x_solas_arreglados]
+matriz.append(lista)
+
+resultados = []
+resultados.append(coeficientes_ecuaciones['∑y'])
+for i in range(1, len(x_solas_arreglados)): 
+    lista = []
+    lista.append(coeficientes_ecuaciones[x_solas_arreglados[i]])
+    for j in range(1, len(x_solas_arreglados)): 
+        if j == i: 
+            lista.append(coeficientes_ecuaciones[f"{x_solas_arreglados[i]}^2"])
+            continue
+        llave = list(filter(lambda x: ('*' in x) and (x_solas_arreglados[i][1:] in x) and (x_solas_arreglados[j][1:] in x), coeficientes_ecuaciones.keys()))[0]
+        lista.append(coeficientes_ecuaciones[llave])
+    matriz.append(lista)
+    llave = list(filter(lambda x: ('*' in x) and (x_solas_arreglados[i][1:] in x) and ('y' in x), coeficientes_ecuaciones.keys()))[0]
+    resultados.append(coeficientes_ecuaciones[llave])
+
 
 print(x_solas_arreglados)
+pprint(matriz)
+print(resultados)
