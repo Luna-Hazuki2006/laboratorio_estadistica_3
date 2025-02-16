@@ -2,6 +2,7 @@ import csv
 import pandas
 from scipy.stats import f, studentized_range
 from pprint import pprint
+from fractions import Fraction
 import math
 
 info = {'∑xt': 0, '∑xt^2': 0, '(∑xt)^2': 0, 'nt': 0, '(∑xt)^2/nt': 0, 'variables': []}
@@ -131,7 +132,23 @@ for i in range(1, len(x_solas_arreglados)):
     llave = list(filter(lambda x: ('*' in x) and (x_solas_arreglados[i][1:] in x) and ('y' in x), coeficientes_ecuaciones.keys()))[0]
     resultados.append(coeficientes_ecuaciones[llave])
 
-
 print(x_solas_arreglados)
 pprint(matriz)
 print(resultados)
+
+for i in range(len(matriz)): 
+    invertido = 1 / matriz[i][i]
+    matriz[i] = [invertido * x for x in matriz[i]]
+    resultados[i] *= invertido
+    for j in range(len(matriz)): 
+        if j == i: continue
+        negativo = -matriz[j][i]
+        matriz[j] = [y + negativo * x for x, y in zip(matriz[i], matriz[j])]
+        resultados[j] = resultados[j] + negativo * resultados[i]
+
+
+pprint(matriz)
+print(resultados)
+for numero in resultados: 
+    print(Fraction(numero))
+print(sum(resultados))
