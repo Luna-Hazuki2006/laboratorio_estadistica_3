@@ -77,6 +77,7 @@ for i in range(len(info['variables'])):
             if info['variables'][j]['nombre'] not in independientes: 
                 independientes.append(info['variables'][j]['nombre'])
             print(resta)
+independientes = ['primero', 'segundo', 'tercero']
 
 pprint(independientes)
 
@@ -114,7 +115,7 @@ x_solas_arreglados.insert(0, '∑y')
 
 matriz = []
 
-lista = [info['nt'] if x == '∑y' else coeficientes_ecuaciones[x] for x in x_solas_arreglados]
+lista = [nj if x == '∑y' else coeficientes_ecuaciones[x] for x in x_solas_arreglados]
 matriz.append(lista)
 
 resultados = []
@@ -132,23 +133,31 @@ for i in range(1, len(x_solas_arreglados)):
     llave = list(filter(lambda x: ('*' in x) and (x_solas_arreglados[i][1:] in x) and ('y' in x), coeficientes_ecuaciones.keys()))[0]
     resultados.append(coeficientes_ecuaciones[llave])
 
+matriz_resultado = matriz.copy()
+resultados_finales = resultados.copy()
+
+for i in range(len(matriz_resultado)): 
+    invertido = 1 / matriz_resultado[i][i]
+    matriz_resultado[i] = [invertido * x for x in matriz_resultado[i]]
+    resultados_finales[i] *= invertido
+    for j in range(len(matriz_resultado)): 
+        if j == i: continue
+        negativo = -matriz_resultado[j][i]
+        matriz_resultado[j] = [y + negativo * x for x, y in zip(matriz_resultado[i], matriz_resultado[j])]
+        resultados_finales[j] = resultados_finales[j] + negativo * resultados_finales[i]
+
 print(x_solas_arreglados)
 pprint(matriz)
 print(resultados)
-
-for i in range(len(matriz)): 
-    invertido = 1 / matriz[i][i]
-    matriz[i] = [invertido * x for x in matriz[i]]
-    resultados[i] *= invertido
-    for j in range(len(matriz)): 
-        if j == i: continue
-        negativo = -matriz[j][i]
-        matriz[j] = [y + negativo * x for x, y in zip(matriz[i], matriz[j])]
-        resultados[j] = resultados[j] + negativo * resultados[i]
-
-
-pprint(matriz)
-print(resultados)
-for numero in resultados: 
-    print(Fraction(numero))
-print(sum(resultados))
+pprint(matriz_resultado)
+print(resultados_finales)
+for numero in resultados_finales: 
+    print(Fraction(numero).limit_denominator())
+print(sum(resultados_finales))
+# if sum([y if matriz[0].index(x) == 0 else x * y for x, y in zip(matriz[0], resultados_finales)]) == resultados[0]: 
+#     print('todo está bien')
+# else: print('TODO ESTÁ MUY MAAAAAAAL')
+for x in matriz: 
+    resultado = sum([numero * constante for numero, constante in zip(x, resultados_finales)])
+    print(f'Resultado: {round(resultado, 4)}')
+    print(f'Real: {round(resultados[matriz.index(x)], 4)}')
