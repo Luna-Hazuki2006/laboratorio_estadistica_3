@@ -64,7 +64,7 @@ print(f'fcal {fcal}')
 print(nj)
 print(glt + 1)
 print(gle)
-print(DHS)
+print(f'DHS {DHS}')
 
 independientes = []
 
