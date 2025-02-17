@@ -77,7 +77,7 @@ for i in range(len(info['variables'])):
             if info['variables'][j]['nombre'] not in independientes: 
                 independientes.append(info['variables'][j]['nombre'])
             print(resta)
-independientes = ['primero', 'segundo', 'tercero']
+# independientes = ['primero', 'segundo', 'tercero']
 
 pprint(independientes)
 
