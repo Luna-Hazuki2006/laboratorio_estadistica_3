@@ -14,6 +14,56 @@ with open('data.csv', newline='', encoding='utf-8') as data:
         info['variables'].append({'nombre': variable, 'lista': []})
     [[[info['variables'][i]['lista'].append(float(x[nombres[i]]))] for i in range(len(nombres))] for x in datos]
 
+def mostrar_info(tabla : list[dict]): 
+    tamaño = len(tabla[0]['lista'])
+    nombres = [variable["nombre"] for variable in tabla]
+    tamaños = []
+    for lista in tabla: 
+        totaluno = max([len(f'{round(x, 4)}') for x in lista['lista']])
+        totaldos = max([len(f'{round(x, 4)}') for x in lista['lista^2']])
+        tamaños.append((totaluno, totaldos))
+    titulo = "| "
+    subtitulo = "| "
+    for nombre, pedazos in zip(nombres, tamaños): 
+        titulo += f'{nombre} ' + (" " * ((pedazos[0] + pedazos[1]) - len(nombre))) + ' | '
+        subtitulo += f"x " + (" " * (pedazos[0] - len('x'))) + " | "
+        subtitulo += f"x^2 " + (" " * (pedazos[1] - len('x^2'))) + " | "
+    print('-' * len(titulo))
+    print(titulo)
+    print('-' * len(subtitulo))
+    print(subtitulo)
+    print('-' * len(subtitulo))
+    for i in range(tamaño):
+        fila = '| '
+        for lista, pedazos in zip(tabla, tamaños): 
+            primero = f"{round(lista['lista'][i], 4)}"
+            fila += f"{primero} " + (" " * (pedazos[0] - len(primero))) + " | "
+            segundo = f"{round(lista['lista^2'][i], 4)}"
+            fila += f"{segundo} " + (" " * (pedazos[1] - len(segundo))) + ' | '
+        print(fila)
+        print('-' * len(fila))
+
+def mostrar_ecuaciones(tabla: dict[list]): 
+    titulos = list(tabla.keys())
+    tamaño = len(tabla[titulos[0]])
+    tamaños = []
+    for nombre in titulos: 
+        total = max([len(f'{round(x, 4)}') for x in tabla[nombre]])
+        tamaños.append((total))
+    titulo = '| '
+    for nombre, pedazo in zip(titulos, tamaños): 
+        titulo += f'{nombre} ' + (" " * (pedazo - len(nombre))) + " | "
+    print("-" * len(titulo))
+    print(titulo)
+    print("-" * len(titulo))
+    for i in range(tamaño): 
+        fila = "| "
+        for nombre, pedazo in zip(titulos, tamaños): 
+            dato = f"{round(tabla[nombre][i], 4)}"
+            fila += f"{dato} " + (" " * (pedazo - len(dato))) + " | "
+        print(fila)
+        print('-' * len(fila))
+
 for variable in info['variables']: 
     variable['lista^2'] = [x ** 2 for x in variable['lista']]
     variable['∑x'] = sum(variable['lista'])
@@ -49,7 +99,8 @@ fcal = MCTR / MCE
 
 DHS = (studentized_range.ppf(q=0.95, k=glt + 1, df=gle)) * (math.sqrt(MCE / nj))
 
-pprint(info)
+# pprint(info)
+mostrar_info(info['variables'])
 print(f'C {C}')
 print(f'SCT {SCT}')
 print(f'SCTR {SCTR}')
@@ -68,6 +119,8 @@ print(f'DHS {DHS}')
 
 independientes = []
 
+pedazos_independientes = []
+
 for i in range(len(info['variables'])): 
     for j in range(i + 1, len(info['variables'])): 
         resta = info['variables'][i]['x'] - info['variables'][j]['x']
@@ -77,9 +130,11 @@ for i in range(len(info['variables'])):
             if info['variables'][j]['nombre'] not in independientes: 
                 independientes.append(info['variables'][j]['nombre'])
             print(resta)
+            pedazos_independientes.append({'x': info['variables'][i]['nombre'], 'y': info['variables'][j]['nombre']})
 # independientes = ['primero', 'segundo', 'tercero']
 
 pprint(independientes)
+pprint(pedazos_independientes)
 
 coeficientes_ecuaciones = {}
 coeficientes_ecuaciones['legenda'] = [
@@ -106,7 +161,8 @@ for i in range(len(coeficientes_ecuaciones['legenda'])):
         coeficientes_ecuaciones['tabla'][resultado_nombre] = resultado
         coeficientes_ecuaciones[f'∑{resultado_nombre}'] = sum(coeficientes_ecuaciones['tabla'][resultado_nombre])
 
-pprint(coeficientes_ecuaciones)
+# pprint(coeficientes_ecuaciones)
+mostrar_ecuaciones(coeficientes_ecuaciones['tabla'])
 
 x_solas = list(filter(lambda x: ('*' not in x) and ('^' not in x) and ('y' not in x) and ('∑' in x), coeficientes_ecuaciones.keys()))
 
