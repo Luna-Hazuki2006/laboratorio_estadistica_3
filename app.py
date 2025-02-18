@@ -64,6 +64,32 @@ def mostrar_ecuaciones(tabla: dict[list]):
         print(fila)
         print('-' * len(fila))
 
+def mostrar_tukey(tabla: list[dict]): 
+    tamaño = len(info['variables'])
+    variables = ['y' if i == 0 else f'x{i}' for i in range(tamaño)]
+    tamaños = []
+    for variable in variables: 
+        try: 
+            tamaños.append(max([len(str(round(dato['resultado'], 4))) for dato in list(filter(lambda x: x['y'] == variable, tabla))]))
+        except: tamaños.append(1)
+    maximo = max([len(x) for x in variables])
+    titulo = '| ' + ('/' * maximo) + ' | ' 
+    for variable, pedazo in zip(variables, tamaños): 
+        titulo += f'{variable} ' + (' ' * (pedazo - len(variable))) + '| '
+    print('-' * len(titulo))
+    print(titulo)
+    print('-' * len(titulo))
+    for i in range(tamaño):
+        fila = f'| {variables[i]} ' + (' ' * (maximo - len(variables[i]))) + '| '
+        for variable, pedazo in zip(variables, tamaños): 
+            try: 
+                numero = [dato['resultado'] for dato in list(filter(lambda x: x['y'] == variable, tabla))][i]
+                fila += f'{round(numero, 4)} ' + (' ' * (pedazo - len(str(round(numero, 4))))) + '| '
+            except: 
+                fila += '/' + ('/' * (pedazo - len(variable))) + '/ | '
+        print(fila)
+        print('-' * len(fila))
+
 for variable in info['variables']: 
     variable['lista^2'] = [x ** 2 for x in variable['lista']]
     variable['∑x'] = sum(variable['lista'])
@@ -120,6 +146,7 @@ print(f'DHS {DHS}')
 independientes = []
 
 pedazos_independientes = []
+tukey = []
 
 for i in range(len(info['variables'])): 
     for j in range(i + 1, len(info['variables'])): 
@@ -130,11 +157,44 @@ for i in range(len(info['variables'])):
             if info['variables'][j]['nombre'] not in independientes: 
                 independientes.append(info['variables'][j]['nombre'])
             print(resta)
-            pedazos_independientes.append({'x': info['variables'][i]['nombre'], 'y': info['variables'][j]['nombre']})
+            pedazos_independientes.append({
+                'x': info['variables'][i]['nombre'], 
+                'y': info['variables'][j]['nombre']})
+        tukey.append({
+            'x': 'y' if i == 0 else f'x{i}', 
+            'y': 'y' if j == 0 else f'x{j}', 
+            'resultado': resta})
 # independientes = ['primero', 'segundo', 'tercero']
+
+mostrar_tukey(tukey)
+
 
 pprint(independientes)
 pprint(pedazos_independientes)
+
+correlaciones = []
+
+for independiente in pedazos_independientes: 
+    lista = {'variables': [independiente['x'], independiente['y']]}
+    for variable in list(independiente.keys()): 
+        data = list(filter(lambda x: x['nombre'] == independiente[variable], info['variables']))[0]
+        lista[variable] = data['lista']
+        lista[f'∑{variable}'] = sum(lista[variable])
+        lista[f'{variable}^2'] = data['lista^2']
+        lista[f'∑{variable}^2'] = sum(lista[f'{variable}^2'])
+    lista['x*y'] = [x * y for x, y in zip(lista['x'], lista['y'])]
+    lista['∑x*y'] = sum(lista['x*y'])
+    n = len(lista['y'])
+    lista['r'] = (lista['∑x*y'] - ((lista['∑x'] * lista['∑y']) / n)) / (
+        math.sqrt((lista['∑x^2'] - ((lista['∑x'] ** 2) / n)) * (lista['∑y^2'] - ((lista['∑y'] ** 2) / n))))
+    lista['b'] = (lista['∑x'] * lista['∑y'] - n * lista['∑x*y']) / ((lista['∑x'] ** 2) - n * lista['∑x^2'])
+    lista['a'] = (lista['∑y'] - lista['∑x'] * lista['b']) / n
+    # lista['ÿ'] = f'ÿ = {round(lista["a"], 4)} + {round(lista["b"], 4)} * X'
+    lista['ÿ'] = lista['a'] / (-lista['b'])
+
+    correlaciones.append(lista)
+
+pprint(correlaciones)
 
 coeficientes_ecuaciones = {}
 coeficientes_ecuaciones['legenda'] = [
