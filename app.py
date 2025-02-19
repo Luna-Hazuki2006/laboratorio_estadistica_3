@@ -1,9 +1,11 @@
 import csv
-import pandas
+import pandas as pd
 from scipy.stats import f, studentized_range
 from pprint import pprint
 from fractions import Fraction
 import math
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 info = {'∑xt': 0, '∑xt^2': 0, '(∑xt)^2': 0, 'nt': 0, '(∑xt)^2/nt': 0, 'variables': []}
 
@@ -108,6 +110,13 @@ def mostrar_correlacion(tabla: dict):
         print(fila)
         print('-' * len(fila))
 
+    sns.set_theme(style="darkgrid")
+    datos = pd.DataFrame({tabla['variables'][0]: tabla['x'], tabla['variables'][1]: tabla['y']})
+    sns.jointplot(x=tabla['variables'][0], y=tabla['variables'][1], data=datos,
+                    kind="reg", truncate=False,
+                    color="m")
+    plt.show()
+
 for variable in info['variables']: 
     variable['lista^2'] = [x ** 2 for x in variable['lista']]
     variable['∑x'] = sum(variable['lista'])
@@ -145,20 +154,19 @@ DHS = (studentized_range.ppf(q=0.95, k=glt + 1, df=gle)) * (math.sqrt(MCE / nj))
 
 # pprint(info)
 mostrar_info(info['variables'])
-print(f'C {C}')
-print(f'SCT {SCT}')
-print(f'SCTR {SCTR}')
-print(f'SCE {SCE}')
-print(SCE + SCTR)
-print(glt)
-print(gle)
-print(ftab)
-print(f'MCTR {MCTR}')
-print(f'MCE {MCE}')
-print(f'fcal {fcal}')
-print(nj)
-print(glt + 1)
-print(gle)
+print(f'C {round(C, 4)}')
+print(f'SCT {round(SCT, 4)}')
+print(f'SCTR {round(SCTR, 4)}')
+print(f'SCE {round(SCE, 4)}')
+print(f'SCE + SCTR {round(SCE + SCTR, 4)}')
+print(f'glt {round(glt, 4)}')
+print(f'gle {round(gle, 4)}')
+print(f'ftab {round(ftab, 4)}')
+print(f'MCTR {round(MCTR, 4)}')
+print(f'MCE {round(MCE, 4)}')
+print(f'fcal {round(fcal, 4)}')
+print(f'nj {round(nj, 4)}')
+print(f'glt + 1 {glt + 1}')
 print(f'DHS {DHS}')
 
 independientes = []
