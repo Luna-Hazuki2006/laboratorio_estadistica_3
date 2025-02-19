@@ -89,6 +89,24 @@ def mostrar_tukey(tabla: list[dict]):
                 fila += '/' + ('/' * (pedazo - len(variable))) + '/ | '
         print(fila)
         print('-' * len(fila))
+        
+def mostrar_correlacion(tabla: dict): 
+    for nombre in tabla['variables']: print(nombre)
+    tamaño = len(tabla['x'])
+    lista = ['x', 'y', 'x^2', 'y^2', 'x*y']
+    tamaños = [max([len(str(round(y, 4))) for y in tabla[x]]) for x in lista]
+    titulo = '| '
+    for variable, pedazo in zip(lista, tamaños): 
+        titulo += f'{variable} ' + (' ' * (pedazo - len(variable))) + ' | '
+    print('-' * len(titulo))
+    print(titulo)
+    print('-' * len(titulo))
+    for i in range(tamaño): 
+        fila = '| '
+        for variable, pedazo in zip(lista, tamaños): 
+            fila += f'{round(tabla[variable][i], 4)} ' + (' ' * (pedazo - len(str(round(tabla[variable][i], 4))))) + ' | '
+        print(fila)
+        print('-' * len(fila))
 
 for variable in info['variables']: 
     variable['lista^2'] = [x ** 2 for x in variable['lista']]
@@ -191,10 +209,10 @@ for independiente in pedazos_independientes:
     lista['a'] = (lista['∑y'] - lista['∑x'] * lista['b']) / n
     # lista['ÿ'] = f'ÿ = {round(lista["a"], 4)} + {round(lista["b"], 4)} * X'
     lista['ÿ'] = lista['a'] / (-lista['b'])
-
+    mostrar_correlacion(lista)
     correlaciones.append(lista)
 
-pprint(correlaciones)
+# pprint(correlaciones)
 
 coeficientes_ecuaciones = {}
 coeficientes_ecuaciones['legenda'] = [
