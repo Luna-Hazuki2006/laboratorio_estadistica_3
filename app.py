@@ -109,6 +109,7 @@ def mostrar_correlacion(tabla: dict):
             fila += f'{round(tabla[variable][i], 4)} ' + (' ' * (pedazo - len(str(round(tabla[variable][i], 4))))) + ' | '
         print(fila)
         print('-' * len(fila))
+    print(f'r {round(tabla['r'], 4)}')
 
     sns.set_theme(style="darkgrid")
     datos = pd.DataFrame({tabla['variables'][0]: tabla['x'], tabla['variables'][1]: tabla['y']})
