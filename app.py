@@ -118,6 +118,12 @@ def mostrar_correlacion(tabla: dict):
                     color="m")
     plt.show()
 
+def mostrar_matriz(tabla: list[list], lista: list): 
+    for i in range(len(tabla)): 
+        for j in range(len(tabla)): 
+            pass
+
+
 for variable in info['variables']: 
     variable['lista^2'] = [x ** 2 for x in variable['lista']]
     variable['∑x'] = sum(variable['lista'])
@@ -174,15 +180,17 @@ independientes = []
 
 pedazos_independientes = []
 tukey = []
+pares = []
+impares = []
 
 for i in range(len(info['variables'])): 
     for j in range(i + 1, len(info['variables'])): 
         resta = info['variables'][i]['x'] - info['variables'][j]['x']
         if resta > DHS: 
-            if info['variables'][i]['nombre'] not in independientes: 
-                independientes.append(info['variables'][i]['nombre'])
-            if info['variables'][j]['nombre'] not in independientes: 
-                independientes.append(info['variables'][j]['nombre'])
+            if info['variables'][i]['nombre'] not in pares: 
+                pares.append(info['variables'][i]['nombre'])
+            if info['variables'][j]['nombre'] not in impares: 
+                impares.append(info['variables'][j]['nombre'])
             print(resta)
             pedazos_independientes.append({
                 'x': info['variables'][i]['nombre'], 
@@ -192,9 +200,10 @@ for i in range(len(info['variables'])):
             'y': 'y' if j == 0 else f'x{j}', 
             'resultado': resta})
 # independientes = ['primero', 'segundo', 'tercero']
+independientes.extend(filter(lambda x: x not in impares, pares))
+independientes.extend(filter(lambda x: x not in pares, impares))
 
-mostrar_tukey(tukey)
-
+mostrar_tukey(tukey) 
 
 pprint(independientes)
 pprint(pedazos_independientes)
@@ -216,7 +225,7 @@ for independiente in pedazos_independientes:
         math.sqrt((lista['∑x^2'] - ((lista['∑x'] ** 2) / n)) * (lista['∑y^2'] - ((lista['∑y'] ** 2) / n))))
     lista['b'] = (lista['∑x'] * lista['∑y'] - n * lista['∑x*y']) / ((lista['∑x'] ** 2) - n * lista['∑x^2'])
     lista['a'] = (lista['∑y'] - lista['∑x'] * lista['b']) / n
-    # lista['ÿ'] = f'ÿ = {round(lista["a"], 4)} + {round(lista["b"], 4)} * X'
+    print(f'ÿ = {round(lista["a"], 4)} + {round(lista["b"], 4)} * X')
     lista['ÿ'] = lista['a'] / (-lista['b'])
     mostrar_correlacion(lista)
     correlaciones.append(lista)
@@ -294,13 +303,18 @@ pprint(matriz)
 print(resultados)
 pprint(matriz_resultado)
 print(resultados_finales)
+print('RESULTADOS FINALES')
 for numero in resultados_finales: 
+    print(f'B{resultados_finales.index(numero)}')
     print(Fraction(numero).limit_denominator())
+    print(round(numero, 4))
 print(sum(resultados_finales))
 # if sum([y if matriz[0].index(x) == 0 else x * y for x, y in zip(matriz[0], resultados_finales)]) == resultados[0]: 
 #     print('todo está bien')
 # else: print('TODO ESTÁ MUY MAAAAAAAL')
 for x in matriz: 
-    resultado = sum([numero * constante for numero, constante in zip(x, resultados_finales)])
+    data = [numero * constante for numero, constante in zip(x, resultados_finales)]
+    print(data)
+    resultado = sum(data)
     print(f'Resultado: {round(resultado, 4)}')
     print(f'Real: {round(resultados[matriz.index(x)], 4)}')
