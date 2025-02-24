@@ -6,6 +6,15 @@ from fractions import Fraction
 import math
 import seaborn as sns
 import matplotlib.pyplot as plt
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="./static"), name="static")
+
+templates = Jinja2Templates(directory="./templates")
 
 info = {'∑xt': 0, '∑xt^2': 0, '(∑xt)^2': 0, 'nt': 0, '(∑xt)^2/nt': 0, 'variables': []}
 
@@ -17,13 +26,13 @@ pares = []
 impares = []
 correlaciones = []
 coeficientes_ecuaciones = {}
-# nj = 0
 matriz_resultado = []
 resultados_finales = []
 matriz = []
 resultados = []
 x_solas = []
 x_solas_arreglados = []
+textos = {}
 
 with open('data.csv', newline='', encoding='utf-8') as data: 
     datos = csv.DictReader(data)
@@ -45,6 +54,7 @@ def info_correlaciones(r):
     else: return 'HUBO UN ERROR GRAVE EN EL PROCESO DE LAS FÓRMULAS DE LA CORRELACIÓN'
 
 def mostrar_info(tabla : dict[list[dict] | float]): 
+    textos['contingencia'] = tabla
     tamaño = len(tabla['variables'][0]['lista'])
     nombres = [variable["nombre"] for variable in tabla['variables']]
     tamaños = []
@@ -104,6 +114,7 @@ def mostrar_ecuaciones(tabla: dict[list | float]):
     
 
 def mostrar_tukey(tabla: list[dict]): 
+    textos['tukey'] = tabla
     print('\nTABLA DE TUKEY\n')
     tamaño = len(info['variables'])
     variables = ['y' if i == 0 else f'x{i}' for i in range(tamaño)]
@@ -150,13 +161,17 @@ def mostrar_correlacion(tabla: dict):
         print('-' * len(fila))
 
     print(f'r = {round(tabla["r"], 4)}')
-    print(info_correlaciones(tabla['r']))
+    tabla['correlacion'] = info_correlaciones(tabla['r'])
+    print(tabla['correlacion'])
     sns.set_theme(style="darkgrid")
     datos = pd.DataFrame({tabla['variables'][0]: tabla['x'], tabla['variables'][1]: tabla['y']})
     sns.jointplot(x=tabla['variables'][0], y=tabla['variables'][1], data=datos,
                     kind="reg", truncate=False,
                     color="m")
-    plt.show()
+    lugar = f'./static/{tabla["variables"][0]}-{tabla["variables"][1]}.png'
+    plt.savefig(lugar)
+    tabla['lugar'] = lugar
+    # plt.show()
 
 def mostrar_matriz(tabla: list[list], lista: list): 
     print('\n')
@@ -193,22 +208,34 @@ def crear_contingencia():
     SCT = info['∑xt^2'] - C
     SCTR = info['(∑xt)^2/nt'] - C
     SCE = info['∑xt^2'] - info['(∑xt)^2/nt']
+    textos['C'] = C
+    textos['SCT'] = SCT
+    textos['SCTR'] = SCTR
+    textos['SCE'] = SCE
 
     glt = len(info['variables']) - 1
     gle = info['nt'] - len(info['variables'])
+    textos['glt'] = glt
+    textos['gle'] = gle
 
     if (glt + gle) != (info['nt'] - 1): print('ALGO ESTÁ MUY MALLLLLLLLLLLLLLLLLLL')
 
     ftab = f.ppf(q=0.95, dfn=glt, dfd=gle)
+    textos['ftab'] = ftab
 
     MCTR = SCTR / glt
     MCE = SCE / gle
+    textos['MCTR'] = MCTR
+    textos['MCE'] = MCE
 
     nj = len(info['variables'][0]['lista'])
+    textos['nj'] = nj
 
     fcal = MCTR / MCE
+    textos['fcal'] = fcal
 
     DHS = (studentized_range.ppf(q=0.95, k=glt + 1, df=gle)) * (math.sqrt(MCE / nj))
+    textos['DHS'] = DHS
 
     # pprint(info)
     mostrar_info(info)
@@ -229,7 +256,6 @@ def crear_contingencia():
     return DHS, fcal, ftab, nj
 
 def crear_tukey(DHS : float, fcal : float, ftab : float): 
-
     for i in range(len(info['variables'])): 
         for j in range(i + 1, len(info['variables'])): 
             resta = info['variables'][i]['x'] - info['variables'][j]['x']
@@ -263,8 +289,8 @@ def crear_tukey(DHS : float, fcal : float, ftab : float):
         if i == 0: hipotesis += f'{independientes[i]}'
         elif i == len(independientes) - 1: hipotesis += f' y {independientes[i]} '
         else: hipotesis += f', {independientes[i]}'
-
     hipotesis += 'sobre las variables '
+
     nombres = [x['nombre'] for x in info['variables']]
 
     dependientes = list(filter(lambda x: x not in independientes, nombres))
@@ -274,6 +300,7 @@ def crear_tukey(DHS : float, fcal : float, ftab : float):
         elif i == len(dependientes) - 1: hipotesis += f' y {dependientes[i]} '
         else: hipotesis += f', {dependientes[i]}'
 
+    textos['hipotesis'] = hipotesis
     print(hipotesis)
 
     mostrar_tukey(tukey) 
@@ -340,7 +367,7 @@ def crear_matrices(nj):
     x_solas_arreglados = [f'∑x{y}' for y in sorted([int(x[2:]) for x in x_solas])]
     x_solas_arreglados.insert(0, '∑y')
 
-    matriz = []
+    # matriz = []
 
     lista = [nj if x == '∑y' else coeficientes_ecuaciones[x] for x in x_solas_arreglados]
     matriz.append(lista)
@@ -360,7 +387,9 @@ def crear_matrices(nj):
         llave = list(filter(lambda x: ('*' in x) and (x_solas_arreglados[i][1:] in x) and ('y' in x), coeficientes_ecuaciones.keys()))[0]
         resultados.append(coeficientes_ecuaciones[llave])
 
+    global matriz_resultado
     matriz_resultado = matriz.copy()
+    global resultados_finales
     resultados_finales = resultados.copy()
 
     for i in range(len(matriz_resultado)): 
@@ -377,13 +406,16 @@ def crear_matrices(nj):
     mostrar_matriz(matriz, resultados)
     mostrar_matriz(matriz_resultado, resultados_finales)
     print('RESULTADOS FINALES')
+    textos['fracciones_finales'] = []
     for numero in resultados_finales: 
+        textos['fracciones_finales'].append(Fraction(numero).limit_denominator())
         print(f'B{resultados_finales.index(numero)} = {Fraction(numero).limit_denominator()}')
         print(f'B{resultados_finales.index(numero)} = {round(numero, 4)}')
     print(sum(resultados_finales))
     # if sum([y if matriz[0].index(x) == 0 else x * y for x, y in zip(matriz[0], resultados_finales)]) == resultados[0]: 
     #     print('todo está bien')
     # else: print('TODO ESTÁ MUY MAAAAAAAL')
+    textos['sumatorias_finales'] = []
     for x in matriz: 
         print('//////////////////////////')
         data = [numero * constante for numero, constante in zip(x, resultados_finales)]
@@ -396,6 +428,7 @@ def crear_matrices(nj):
         print(y)
         # print(data)
         resultado = sum(data)
+        textos['sumatorias_finales'].append(resultado)
         print(f'ÿ = {round(resultado, 4)}')
         indice = matriz.index(x)
         print(f'∑{'y' if indice == 0 else f'y*x{indice}'} = {round(resultados[indice], 4)}')
@@ -403,7 +436,8 @@ def crear_matrices(nj):
 def main(): 
     try: 
         dhs, fcal, ftab, nj = crear_contingencia()
-        if crear_tukey(dhs, fcal, ftab): 
+        textos['verdad'] = crear_tukey(dhs, fcal, ftab)
+        if textos['verdad']: 
             crear_correlaciones()
             crear_tablas_ecuaciones()
             crear_matrices(nj)
@@ -412,6 +446,20 @@ def main():
     except: 
         print('NO SE PUDO APLICAR TUKEY')
 
+main()
 
-if __name__ == '__main__': 
-    main()
+@app.get('/')
+def mostrar(request : Request):
+    return templates.TemplateResponse('index.html', {
+        'request': request, 'hipotesis': textos['hipotesis'], 'DHS': textos['DHS'], 'MCE': textos['MCE'], 
+        'C': textos['C'], 'nj': textos['nj'], 'fcal': textos['fcal'], 'ftab': textos['ftab'], 
+        'SCT': textos['SCT'], 'SCTR': textos['SCTR'], 'SCE': textos['SCE'], 'MCTR': textos['MCTR'], 
+        'glt': textos['glt'], 'gle': textos['gle'],  'round': round, 'verdad': textos['verdad'],
+        'contingencia': textos['contingencia'], 'tukey': textos['tukey'], 'matriz': matriz, 
+        'resultados': resultados, 'matriz_resultado': matriz_resultado, 'sumatorias_finales': textos['sumatorias_finales'], 
+        'resultados_finales': resultados_finales, 'fracciones_finales': textos['fracciones_finales'], 
+        'correlaciones': correlaciones, 'regresiones': coeficientes_ecuaciones})
+
+
+# if __name__ == '__main__': 
+#     main()

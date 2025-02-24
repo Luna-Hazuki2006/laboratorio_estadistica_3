@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', path='verdades.ico') }}" type="image/x-icon">
+    <title>Hipótesis, correlaciones, regresiones... ¡Y mucho más!</title>
+</head>
+<body>
+    <div>
+        <h1>¡Una gran bienvenida al programa de correlaciones y regresiones!</h1>
+    </div>
+    <small>Hecho por Ana Paula Mendoza Díaz, estudiante del 4° nivel de la carrera de desarrollo de software, GracoSoft. Febrero 2025</small>
+    <h2 id="enunciado">Enunciado</h2>
+    <p>
+        Se realizo un estudio sobre un camión de reparto ligero a Diesel para ver si la humedad, 
+        temperatura del aire y presión barométrica influyen en la emisión de óxido nitroso. 
+        Las mediciones de las emisiones se tomaron en diferentes momentos, con condiciones experimentales variantes 
+        <br>
+        Es importante mencionar que este estudio estadístico fue programado totalmente en Python utilizando las librerías: 
+        seaborn, matplotlib, csv, random, scipy, pandas. Para visualizar los datos se utilizó Fastapi.
+        <br>
+        A continuación, se muestran los resultados de este trabajo:
+    </p>
+    <nav>
+        Índice: 
+        <ul>
+            <li><a href="#enunciado">Enunciado</a></li>
+            <li><a href="#contingencia">Contingencia</a></li>
+            <li><a href="#tukey">Tukey</a></li>
+            <li><a href="#hipótesis">Hipótesis</a></li>
+            {% if verdad %}
+            <li><a href="#correlaciones">Correlaciones</a></li>
+            <li><a href="#regresiones">Regresion</a></li>
+            <li><a href="#matrices">Matrices</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <h2 id="contingencia">Contingencia</h2>
+    <table>
+        <tr>
+            {% for linea in contingencia['variables'] %}
+            <th colspan="2">{{ linea['nombre'] }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for linea in contingencia['variables'] %}
+            <th>x</th>
+            <th>x<sup>2</sup></th>
+            {% endfor %}
+        </tr>
+        {% for i in range(contingencia['variables'][0]['lista'].__len__()) %}
+        <tr>
+            {% for linea in contingencia['variables'] %}
+            <td>{{ round(linea['lista'][i], 4) }}</td>
+            <td>{{ round(linea['lista^2'][i], 4) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% for variable in contingencia['variables'] %}
+    <h3>Para la variable {{ variable['nombre'] }}: </h3>
+    {% for datos in variable.keys() %}
+    {% if datos == 'n' or datos == 'x' or '∑' in datos %}
+    <p>{{ datos }} = {{ round(variable[datos], 4) }}</p>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+    <h3>En general: </h3>
+    {% for variable in contingencia.keys() %}
+    {% if variable == 'nt' or '∑' in variable %}
+    <p>{{ variable }} = {{ round(contingencia[variable], 4) }}</p>
+    {% endif %}
+    {% endfor %}
+    <p>C = {{ round(C, 4) }}</p>
+    <p>SCT = {{ round(SCT, 4) }}</p>
+    <p>SCTR = {{ round(SCTR, 4) }}</p>
+    <p>SCE = {{ round(SCE, 4) }}</p>
+    <p>SCE + SCTR = {{ round((SCE + SCTR), 4) }}</p>
+    <p>glt = {{ round(glt, 4) }}</p>
+    <p>gle = {{ round(gle, 4) }}</p>
+    <p>ftab = {{ round(ftab, 4) }}</p>
+    <p>MCTR = {{ round(MCTR, 4) }}</p>
+    <p>MCE = {{ round(MCE, 4) }}</p>
+    <p>fcal = {{ round(fcal, 4) }}</p>
+    <p>nj = {{ round(nj, 4) }}</p>
+    <p>DHS = {{ round(DHS, 4) }}</p>
+    <h2 id="tukey">Tukey</h2>
+    <p>Los siguientes valores son las restas medias aritméticas de las variables: </p>
+    {% for nombre in contingencia['variables'] %}
+    <p>{{ nombre['nombre'] }} = {{ 'y' if contingencia['variables'].index(nombre) == 0 else 'x' + contingencia['variables'].index(nombre).__str__() }}</p>
+    {% endfor %}
+    <table>
+        <tr>
+            <th></th>
+            {% for variable in contingencia['variables'] %}
+            {% if contingencia['variables'].index(variable) == 0 %}
+            <th>y</th>
+            {% else %}
+            <th>x{{ contingencia['variables'].index(variable) }}</th>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% for variable in contingencia['variables'] %}
+        <tr>
+        {% if contingencia['variables'].index(variable) == 0 %}
+        <th>y</th>
+        <td></td>
+        {% for interna in tukey %}
+        {% if interna['x'] == 'y' %}
+        <td class="{{ 'independiente' if interna['resultado'] > DHS else 'dependiente' }}">{{ round(interna['resultado'], 4) }}</td>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <th>x{{ contingencia['variables'].index(variable) }}</th>
+        {% for i in range(contingencia['variables'].index(variable) + 1) %}
+        <td></td>
+        {% endfor %}
+        {% for interna in tukey %}
+        {% if interna['x'] == 'x' + contingencia['variables'].index(variable).__str__() %}
+        <td class="{{ 'independiente' if interna['resultado'] > DHS else 'dependiente' }}">{{ round(interna['resultado'], 4) }}</td>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    <h2 id="hipótesis">Hipótesis</h2>
+    <p>{{ hipotesis }}</p>
+    {% if verdad %}
+    <h2 id="correlaciones">Correlaciones</h2>
+    {% for variable in correlaciones %}
+    <h3>La correlación entre {{ variable['variables'][0] }} y {{ variable['variables'][1] }}</h3>
+    <table>
+        <tr>
+            {% for titulo in ['x', 'y', 'x^2', 'y^2', 'x*y'] %}
+            <th>{{ titulo }}</th>
+            {% endfor %}
+        </tr>
+        {% for i in range(variable['x'].__len__()) %}
+        <tr>
+            {% for valor in ['x', 'y', 'x^2', 'y^2', 'x*y'] %}
+            <td>{{ round(variable[valor][i], 4) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <p>r = {{ round(variable['r'], 4) }}</p>
+    <p>{{ variable['correlacion'] }}</p>
+    <p>ÿ = {{ round(variable["a"], 4) }} + {{ round(variable["b"], 4) }} * X</p>
+    <div>
+        <label for="x{{ correlaciones.index(variable) }}">Valor de la X: </label>
+        <input type="number" name="X" id="x{{ correlaciones.index(variable) }}">
+        <br>
+        <label for="y{{ correlaciones.index(variable) }}">Valor de la ÿ: </label>
+        <input type="number" name="y" id="y{{ correlaciones.index(variable) }}" readonly>
+        <button type="button" onclick="document.getElementById('y{{ correlaciones.index(variable) }}').value = {{ variable['a'] }} + {{ variable['b'] }} * document.getElementById('x{{ correlaciones.index(variable) }}').value">Calcular</button>
+    </div>
+    <h4>Diagrama de dispersión</h4>
+    <img src="{{ variable['lugar'] }}" alt="Diagrama de dispersión entre {{ variable['variables'][0] }} y {{ variable['variables'][1] }}">
+    {% endfor %}
+    <h2 id="regresiones">Regresión linear</h2>
+    {% for nombre in regresiones['legenda'] %}
+    <p>{{ nombre['variable'] }} = {{ nombre['nombre'] }}</p>
+    {% endfor %}
+    <table>
+        <tr>
+            {% for nombre in regresiones['tabla'].keys() %}
+            <th>{{ nombre }}</th>
+            {% endfor %}
+        </tr>
+        {% for i in range(regresiones['tabla']['y'].__len__()) %}
+        <tr>
+            {% for nombre in regresiones['tabla'].keys() %}
+            <td>{{ round(regresiones['tabla'][nombre][i], 4) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% for datos in regresiones.keys() %}
+    {% if '∑' in datos %}
+    <p>{{ datos }} = {{ regresiones[datos] }}</p>
+    {% endif %}
+    {% endfor %}
+    <h2 id="matrices">Matrices</h2>
+    <h3>Matriz inicial</h3>
+    <table>
+        {% for i in range(matriz.__len__()) %}
+        <tr>
+            {% for dato in matriz[i] %}
+            <td>{{ round(dato, 4) }}</td>
+            {% endfor %}
+            <th>{{ round(resultados[i], 4) }}</th>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>Matriz después del proceso de Jordan</h3>
+    <table>
+        {% for i in range(matriz_resultado.__len__()) %}
+        <tr>
+            {% for dato in matriz_resultado[i] %}
+            <td>{{ round(dato, 4) }}</td>
+            {% endfor %}
+            <th>{{ round(resultados_finales[i], 4) }}</th>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>Resultados finales</h3>
+    {% for i in range(resultados_finales.__len__()) %}
+    <p>
+        <math>
+            <mrow>
+                <mi>B{{ i }}</mi>
+                <mo> = </mo>
+                <mfrac>
+                    <mi>{{ fracciones_finales[i].numerator }}</mi>
+                    <mi>{{ fracciones_finales[i].denominator }}</mi>
+                </mfrac>
+                <mo> = </mo>
+                <mi>{{ round(resultados_finales[i], 4) }}</mi>
+            </mrow>
+        </math>
+    </p>
+    {% endfor %}
+    {% for i in range(matriz.__len__()) %}
+    <p>ÿ = 
+        {% for j in range(matriz[i].__len__()) %}
+        {{ round(matriz[i][j], 4) }} * B{{ j }} {{ '' if j == matriz.__len__() - 1 else '+' }} 
+        {% endfor %}
+        = {{ round(sumatorias_finales[i], 4) }}
+    </p>
+    {% endfor %}
+    {% endif %}
+</body>
+</html>

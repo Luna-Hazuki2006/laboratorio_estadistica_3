@@ -1,0 +1,78 @@
+h1, h2, h3, small, td {
+    text-align: center;
+}
+
+div {
+    border-radius: 10px;
+    animation: vistoso 5s normal 5s infinite linear;
+}
+
+h2 {
+    animation: colorido 5s normal 5s infinite linear;
+}
+
+table {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+table, td, th {
+    border: 1px solid black;
+}
+
+th {
+    background-color: darkkhaki;
+}
+
+tr:hover {
+    background-color: lightblue;
+}
+
+body {
+    background-image: linear-gradient(lavenderblush, lavender, mediumorchid);
+    margin: 5%;
+}
+
+.independiente {
+    background-color: chartreuse;
+}
+
+.dependiente {
+    background-color: crimson;
+}
+
+@keyframes vistoso {
+    0% {
+        border: 3px dotted green;
+    }
+    25% {
+        border: 3px groove green;
+    }
+    50% {
+        border: 3px dotted red;
+    }
+    75% {
+        border: 3px groove red;
+    }
+    100% {
+        border: 3px dotted green;
+    }
+}
+
+@keyframes colorido {
+    0% {
+        color: green;
+    }
+    25% {
+        color: green;
+    }
+    50% {
+        color: red;
+    }
+    75% {
+        color: red;
+    }
+    100% {
+        color: green;
+    }
+}
