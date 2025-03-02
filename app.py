@@ -252,7 +252,7 @@ def crear_contingencia():
     print(f'fcal = {round(fcal, 4)}')
     print(f'nj = {round(nj, 4)}')
     print(f'glt + 1 = {glt + 1}')
-    print(f'DHS = {round(DHS)}')
+    print(f'DHS = {round(DHS, 4)}')
     return DHS, fcal, ftab, nj
 
 def crear_tukey(DHS : float, fcal : float, ftab : float): 
@@ -441,10 +441,8 @@ def main():
             crear_correlaciones()
             crear_tablas_ecuaciones()
             crear_matrices(nj)
-        else: 
-            print('NO SE PUDO APLICAR TUKEY')
-    except: 
-        print('NO SE PUDO APLICAR TUKEY')
+        else: print('NO SE PUDO APLICAR TUKEY')
+    except: print('NO SE PUDO APLICAR TUKEY')
 
 main()
 

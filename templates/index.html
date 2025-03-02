@@ -226,7 +226,7 @@
     {% for i in range(matriz.__len__()) %}
     <p>ÿ = 
         {% for j in range(matriz[i].__len__()) %}
-        {{ round(matriz[i][j], 4) }} * B{{ j }} {{ '' if j == matriz.__len__() - 1 else '+' }} 
+        {{ round(matriz[i][j], 4) }} * B<sub>{{ j }}</sub> {{ '' if j == matriz.__len__() - 1 else '+' }} 
         {% endfor %}
         = {{ round(sumatorias_finales[i], 4) }}
     </p>
