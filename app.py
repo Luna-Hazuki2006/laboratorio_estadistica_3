@@ -279,13 +279,13 @@ def crear_tukey(DHS : float, fcal : float, ftab : float):
     hipotesis = ''
     if fcal > ftab:
         hipotesis = f'''
-    Se rechaza la hipótesis nula (H0), ya que fcal ({fcal}) > ftab ({ftab}), 
+    Se rechaza la hipótesis nula (H0), ya que fcal ({round(fcal, 4)}) > ftab ({round(ftab, 4)}), 
     lo cual quiere decir que se acepta la hipótesis alternativa (Ha), 
     lo cual implica que si existe diferencia significativa entre las variables 
     ''' 
     elif ftab > fcal: 
         hipotesis = f'''
-    Se acepta la hipótesis nula (H0), ya que fcal ({fcal}) < ftab ({ftab}), 
+    Se acepta la hipótesis nula (H0), ya que fcal ({round(fcal, 4)}) < ftab ({round(ftab, 4)}), 
     lo cual implica que no existen diferencias significativas entre las variables 
     '''
     for i in range(len(independientes)): 
