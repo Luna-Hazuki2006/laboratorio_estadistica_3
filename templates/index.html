@@ -34,6 +34,8 @@
             <li><a href="#correlaciones">Correlaciones</a></li>
             <li><a href="#regresiones">Regresion</a></li>
             <li><a href="#matrices">Matrices</a></li>
+            <li><a href="#conclusiones">Conclusiones</a></li>
+            <li><a href="#recomendaciones">Recomendaciones</a></li>
             {% endif %}
         </ul>
     </nav>
@@ -73,19 +75,19 @@
     <p>{{ variable }} = {{ round(contingencia[variable], 4) }}</p>
     {% endif %}
     {% endfor %}
-    <p>C = {{ round(C, 4) }}</p>
-    <p>SCT = {{ round(SCT, 4) }}</p>
-    <p>SCTR = {{ round(SCTR, 4) }}</p>
-    <p>SCE = {{ round(SCE, 4) }}</p>
+    <p>C = {{ round(C, 4) }} (factor de corrección)</p>
+    <p>SCT = {{ round(SCT, 4) }} (Suma total de cuadros)</p>
+    <p>SCTR = {{ round(SCTR, 4) }} (SUma de cuadrado del tratamiento)</p>
+    <p>SCE = {{ round(SCE, 4) }} (Sumade cuadrados del error)</p>
     <p>SCE + SCTR = {{ round((SCE + SCTR), 4) }}</p>
-    <p>glt = {{ round(glt, 4) }}</p>
-    <p>gle = {{ round(gle, 4) }}</p>
-    <p>ftab = {{ round(ftab, 4) }}</p>
-    <p>MCTR = {{ round(MCTR, 4) }}</p>
-    <p>MCE = {{ round(MCE, 4) }}</p>
-    <p>fcal = {{ round(fcal, 4) }}</p>
-    <p>nj = {{ round(nj, 4) }}</p>
-    <p>DHS = {{ round(DHS, 4) }}</p>
+    <p>glt = {{ round(glt, 4) }} (grado de tratamiento)</p>
+    <p>gle = {{ round(gle, 4) }} (grado de error)</p>
+    <p>ftab = {{ round(ftab, 4) }} (f-tabulado)</p>
+    <p>MCTR = {{ round(MCTR, 4) }} (SCTR dividido entre el grado de tratamiento - 1)</p>
+    <p>MCE = {{ round(MCE, 4) }} (SCE dividido entre el grado de error)</p>
+    <p>fcal = {{ round(fcal, 4) }} (f-calculado)</p>
+    <p>nj = {{ round(nj, 4) }} (Cantidad de filas que hay por variables)</p>
+    <p>DHS = {{ round(DHS, 4) }} (Diferencia honestamente significativa)</p>
     <h2 id="tukey">Tukey</h2>
     <p>Los siguientes valores son las restas medias aritméticas de las variables: </p>
     {% for nombre in contingencia['variables'] %}
@@ -148,6 +150,8 @@
     </table>
     <p>r = {{ round(variable['r'], 4) }}</p>
     <p>{{ variable['correlacion'] }}</p>
+    <p>a = {{ round(variable['a'], 4) }}</p>
+    <p>b = {{ round(variable['b'], 4) }}</p>
     <p>ÿ = {{ round(variable["a"], 4) }} + {{ round(variable["b"], 4) }} * X</p>
     <div>
         <label for="x{{ correlaciones.index(variable) }}">Valor de la X: </label>
@@ -231,6 +235,26 @@
         = {{ round(sumatorias_finales[i], 4) }}
     </p>
     {% endfor %}
+    <h2 id="conclusiones">Conclusiones</h2>
+    <p>
+        Con todos estos resultados se puede comprender el hecho de que las emisiones 
+        de óxido nitroso si son relacionalmente afectadas por la humedad, la temperatura y 
+        la presión barométrica en los camiones repartidores que utilizan Diésel.
+    </p>
+    <h2 id="recomendaciones">Recomendaciones</h2>
+    <p>
+        Después de haber obtenido todos los resultados se pueden dar las siguientes recomendaciones: 
+    </p>
+    <ul>
+        <li>
+            Buscar rutas de transporte que tengan menores cantidades de temperatura y mayor cantidad 
+            de humedad para reducir los niveles óxido nitroso emanado.
+        </li>
+        <li>
+            Investigar las diferentes marcas de Diésel que se utilizan en los camiones para ver 
+            si se encuentran diferencias significativas en las emisiones de óxido nitroso.
+        </li>
+    </ul>
     {% endif %}
 </body>
 </html>
