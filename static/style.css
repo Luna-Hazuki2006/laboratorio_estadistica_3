@@ -29,7 +29,7 @@ tr:hover {
 }
 
 body {
-    background-image: lineal-gradient(lavenderblush, lavender, mediumorchid);
+    background-image: linear-gradient(lavenderblush, lavender, mediumorchid);
     margin: 5%;
 }
 
