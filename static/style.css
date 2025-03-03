@@ -4,11 +4,11 @@ h1, h2, h3, small, td {
 
 div {
     border-radius: 10px;
-    animation: vistoso 5s normal 5s infinite linear;
+    animation: vistoso 5s normal 5s infinite lineal;
 }
 
 h2 {
-    animation: colorido 5s normal 5s infinite linear;
+    animation: colorido 5s normal 5s infinite lineal;
 }
 
 table {
@@ -29,7 +29,7 @@ tr:hover {
 }
 
 body {
-    background-image: linear-gradient(lavenderblush, lavender, mediumorchid);
+    background-image: lineal-gradient(lavenderblush, lavender, mediumorchid);
     margin: 5%;
 }
 
